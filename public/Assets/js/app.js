@@ -1,19 +1,50 @@
-let MyApp = (function(){
+let AppProcess = (function(){
+    
+});
+
+let MyApp = (function () {
     let socket = null;
-    function init(uid, mid){
+    let user_id = '';
+    let meeting_id = '';
+
+    function init(uid, mid) {
+        user_id = uid;
+        meeting_id = mid;
         event_process_for_signaling_server();
     }
-    
-        function event_process_for_signaling_server(){
-            socket = io.connect();
-            socket.on("connect",()=>{
-                alert('Socket connected to client side');
-            })
-        }
 
+    function event_process_for_signaling_server() {
+        socket = io.connect();
+        socket.on("connect", () => {
+            if (socket.connected) {
+                if (user_id !== "" && meeting_id !== "") {
+                    socket.emit("userconnect", {
+                        displayName: user_id,
+                        meetingid: meeting_id
+                    })
+                }
+            }
+        });
+
+        socket.on("inform_others_about_me", function (data) {
+            addUser(data.other_user_id, data.connId);
+            AppProcess.setNewConnection(data.connID);
+        });
+
+        // Creates a DIV for the user in the room
+        function addUser(other_user_id, connID){
+            let newDivId = $("#otherTemplate").clone();
+            newDivId = newDivId.attr("id", connID).addClass("other");
+            newDivId.find("h2").text(other_user_id);
+            newDivId.find("video").attr("id", "v_"+connID);
+            newDivId.find("audio").attr("id", "a_"+connID);
+            newDivId.show();
+            $("#divUsers").append(newDivId);
+        }    
+    }
 
     return {
-        _init: function(uid, mid){
+        _init: function (uid, mid) {
             init(uid, mid);
         }
     };
