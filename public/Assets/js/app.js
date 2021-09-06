@@ -1,5 +1,25 @@
-let AppProcess = (function(){
-    
+let AppProcess = (function () {
+    // Stun ice server will provide users info from their computer such as network details(eg:- IP) 
+    let iceConfiguration = {
+        // stun servers URL
+        iceServers: [{
+                urls: "stun:stun.l.google.com:19302"
+            },
+            {
+                urls: "stun:stun1.l.google.com:19302"
+            },
+        ]
+    };
+
+    function setConnection(connID) {
+        let connection = new RTCPeerConnection(iceConfiguration);
+    }
+
+    return {
+        setNewConnection: async function (connId) {
+            await setConnection(connID);
+        }
+    }
 });
 
 let MyApp = (function () {
@@ -32,15 +52,15 @@ let MyApp = (function () {
         });
 
         // Creates a DIV for the user in the room
-        function addUser(other_user_id, connID){
+        function addUser(other_user_id, connID) {
             let newDivId = $("#otherTemplate").clone();
             newDivId = newDivId.attr("id", connID).addClass("other");
             newDivId.find("h2").text(other_user_id);
-            newDivId.find("video").attr("id", "v_"+connID);
-            newDivId.find("audio").attr("id", "a_"+connID);
+            newDivId.find("video").attr("id", "v_" + connID);
+            newDivId.find("audio").attr("id", "a_" + connID);
             newDivId.show();
             $("#divUsers").append(newDivId);
-        }    
+        }
     }
 
     return {
